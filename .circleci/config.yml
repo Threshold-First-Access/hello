@@ -1,37 +1,136 @@
-# Javascript Node CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-javascript/ for more details
-#
 version: 2
-jobs:
-  build:
+definitions:
+  build_defaults: &build_defaults
+    working_directory: ~/app
     docker:
-      # specify the version you desire here
       - image: circleci/node:8.10-browsers
-      # - image: selenium/standalone-chrome:3.1.0
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/mongo:3.4.4
-
-    working_directory: ~/repo
-
+  test_defaults: &test_defaults
+    working_directory: ~/app
+    docker:
+      - image: circleci/node:8.10-browsers
+jobs:
+  checkout_code:
+    <<: *build_defaults
     steps:
       - checkout
-
-      # Download and cache dependencies
+  bundle_dependencies:
+    <<: *build_defaults
+    steps:
+      - bundle
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "package.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
-
-      - run: yarn install
-
+            - v1-hello-app-yarn-deps-{{ checksum "yarn.lock" }}
+            - v1-hello-app-yarn-deps-
+      - run:
+          name: Install dependencies
+          command: yarn install --frozen-lockfile
       - save_cache:
+          key: v1-hello-app-yarn-deps-{{ checksum "yarn.lock" }}
           paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
-        
-      # run tests!
-      - run: yarn test
+            - ~/app/node_modules
+  lint:
+    <<: *build_defaults
+    steps:
+      - lint
+      - restore_cache:
+          keys:
+            - v1-hello-app-yarn-deps-{{ checksum "yarn.lock" }}
+      - run:
+          name: Run Linter
+          command: yarn lint
+  test:
+    <<: *build_defaults
+    steps:
+      - test
+      - restore_cache:
+          keys:
+            - v1-hello-app-yarn-deps-{{ checksum "yarn.lock" }}
+      - run:
+          name: Runnimg Tests
+          command: yarn test          
+  build_docker_image:
+      steps:
+      - build_docker
+  build_and_push:
+      steps:
+      - build_and_push
+  plan:
+      steps:
+      - plan
+  deploy:
+      steps:
+      - deploy            
+workflows:
+  version: 2
+  build_test_and_deploy:
+    jobs:
+      - checkout_code:
+          filters:
+            tags:
+              only: latest
+      - bundle_dependencies:
+          requires:
+            - checkout_code
+          filters:
+            tags:
+              only: latest
+      - lint:
+          requires:
+            - bundle_dependencies
+          filters:
+            tags:
+              only: latest
+      - test:
+          requires:
+            - bundle_dependencies
+          filters:
+            tags:
+              only: latest
+      - build_docker_image:
+          context: org-global
+          requires:
+            - lint
+            - test
+          filters:
+            tags:
+              ignore: latest
+            branches:
+              ignore: [master, develop]
+      - build_and_push:
+          context: org-global
+          requires:
+            - lint
+            - test
+          filters:
+            tags:
+              only: latest
+            branches:
+              only: [master, develop]
+      - plan:
+          context: org-global
+          requires:
+            - build_and_push
+          filters:
+            tags:
+              only: latest
+            branches:
+              only: [master, develop]
+      - production_deploy_hold:
+          type: approval
+          requires:
+            - plan
+          filters:
+            tags:
+              only: latest
+            branches:
+              only: [master]
+      - deploy:
+          context: org-global
+          requires:
+            - production_deploy_hold
+            - plan
+          filters:
+            tags:
+              only: latest
+            branches:
+              only: [master, develop]      
