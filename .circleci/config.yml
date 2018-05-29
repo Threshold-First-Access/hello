@@ -25,10 +25,11 @@ jobs:
             - v1-hello-app-yarn-deps-{{ checksum "yarn.lock" }}
             - v1-hello-app-yarn-deps-
       - run:
-          name: Install dependencies
-          command: yarn install --frozen-lockfile
+        name: Install dependencies
+        command: yarn install --frozen-lockfile
       - save_cache:
-          key: v1-hello-app-yarn-deps-{{ checksum "yarn.lock" }}
+          key: 
+            - v1-hello-app-yarn-deps-{{ checksum "yarn.lock" }}
           paths:
             - ~/app/node_modules
   lint:
