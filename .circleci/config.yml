@@ -11,11 +11,11 @@ jobs:
       - checkout
       - run:
         name: Version command
-        command: echo "Running checkout"
+        command: 
+          echo "Running checkout"
   bundle_dependencies:
     <<: *build_defaults
     steps:
-      - bundle
       - restore_cache:
           keys:
             - v1-hello-app-yarn-deps-{{ checksum "yarn.lock" }}
@@ -27,7 +27,25 @@ jobs:
           key: 
             - v1-hello-app-yarn-deps-{{ checksum "yarn.lock" }}
           paths:
-            - ~/app/node_modules        
+            - ~/app/node_modules
+  lint:
+    <<: *build_defaults
+    steps:
+      - restore_cache:
+          keys:
+            - v1-hello-app-yarn-deps-{{ checksum "yarn.lock" }}
+      - run:
+          name: Run Linter
+          command: yarn lint
+  test:
+    <<: *build_defaults
+    steps:
+      - restore_cache:
+          keys:
+            - v1-hello-app-yarn-deps-{{ checksum "yarn.lock" }}
+      - run:
+          name: Runnimg Tests
+          command: yarn test                           
 workflows:
   version: 2
   build_test_and_deploy:
@@ -41,4 +59,16 @@ workflows:
             - checkout_code
           filters:
             tags:
-              only: latest              
+              only: latest
+      - lint:
+          requires:
+            - bundle_dependencies
+          filters:
+            tags:
+              only: latest
+      - test:
+          requires:
+            - bundle_dependencies
+          filters:
+            tags:
+              only: latest                            
