@@ -14,8 +14,9 @@ jobs:
     steps:
       - checkout
       - run:
-        name: version command
-        command: node -v  # This is to test the ci flow
+        name: Version command
+        command: 
+          node -v  # This is to test the ci flow
   bundle_dependencies:
     <<: *build_defaults
     steps:
@@ -56,25 +57,25 @@ jobs:
       steps:
         - build_docker
         - run:
-          name: version command
+          name: Version command
           command: node -v  # This is to test the ci flow        
   build_and_push:
       steps:
         - build_and_push
         - run:
-          name: version command
+          name: Version command
           command: node -v  # This is to test the ci flow         
   plan:
       steps:
         - plan
         - run:
-          name: version command
+          name: Version command
           command: node -v  # This is to test the ci flow         
   deploy:
       steps:
         - deploy
         - run:
-          name: version command
+          name: Version command
           command: node -v  # This is to test the ci flow                   
 workflows:
   version: 2
