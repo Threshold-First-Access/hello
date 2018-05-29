@@ -15,7 +15,7 @@ jobs:
       - checkout
       - run:
         name: Version command
-        command: ls  # This is to test the ci flow
+        command: yarn -v  # This is to test the ci flow
   bundle_dependencies:
     <<: *build_defaults
     steps:
