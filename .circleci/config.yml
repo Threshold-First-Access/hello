@@ -15,8 +15,7 @@ jobs:
       - checkout
       - run:
         name: Version command
-        command: 
-          node -v  # This is to test the ci flow
+        command: node -v  # This is to test the ci flow
   bundle_dependencies:
     <<: *build_defaults
     steps:
