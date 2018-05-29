@@ -12,7 +12,6 @@ jobs:
   checkout_code:
     <<: *build_defaults
     steps:
-      - checkout
       - run:
         name: Version command
         command: |
