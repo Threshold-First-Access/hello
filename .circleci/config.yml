@@ -15,7 +15,8 @@ jobs:
       - checkout
       - run:
         name: Version command
-        command: yarn -v
+        command: |
+          echo Running checkout
   bundle_dependencies:
     <<: *build_defaults
     steps:
