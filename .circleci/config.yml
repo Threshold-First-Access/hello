@@ -15,7 +15,8 @@ jobs:
       - checkout
       - run:
         name: Version command
-        command: echo "Running checkout"
+        command: 
+          echo "Running checkout"
 workflows:
   version: 2
   build_test_and_deploy:
@@ -23,4 +24,4 @@ workflows:
       - checkout_code:
           filters:
             tags:
-              only: latest        
+              only: latest
