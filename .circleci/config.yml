@@ -15,21 +15,28 @@ jobs:
   bundle_dependencies:
     <<: *build_defaults
     steps:
+      - checkout
       - run:
           name: Install dependencies
-          command: yarn install --frozen-lockfile
+          command: yarn install
   lint:
     <<: *build_defaults
     steps:
+      - checkout
       - run:
           name: Run Linter
-          command: yarn lint
+          command: |
+            yarn install
+            yarn lint
   test:
     <<: *build_defaults
     steps:
+      - checkout
       - run:
           name: Runnimg Tests
-          command: yarn test                           
+          command: |
+            yarn install
+            yarn test                           
 workflows:
   version: 2
   build_test_and_deploy:
