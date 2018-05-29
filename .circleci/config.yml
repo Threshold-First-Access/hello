@@ -54,15 +54,27 @@ jobs:
   build_docker_image:
       steps:
         - build_docker
+        - run:
+          name: version command
+          command: node -v  # This is to test the ci flow        
   build_and_push:
       steps:
         - build_and_push
+        - run:
+          name: version command
+          command: node -v  # This is to test the ci flow         
   plan:
       steps:
         - plan
+        - run:
+          name: version command
+          command: node -v  # This is to test the ci flow         
   deploy:
       steps:
-        - deploy            
+        - deploy
+        - run:
+          name: version command
+          command: node -v  # This is to test the ci flow                   
 workflows:
   version: 2
   build_test_and_deploy:
