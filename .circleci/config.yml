@@ -4,10 +4,6 @@ definitions:
     working_directory: ~/app
     docker:
       - image: circleci/node:8.10-browsers
-  test_defaults: &test_defaults
-    working_directory: ~/app
-    docker:
-      - image: circleci/node:8.10-browsers
 jobs:
   checkout_code:
     <<: *build_defaults
@@ -15,8 +11,23 @@ jobs:
       - checkout
       - run:
         name: Version command
-        command: 
-          echo "Running checkout"
+        command: echo "Running checkout"
+  bundle_dependencies:
+    <<: *build_defaults
+    steps:
+      - bundle
+      - restore_cache:
+          keys:
+            - v1-hello-app-yarn-deps-{{ checksum "yarn.lock" }}
+            - v1-hello-app-yarn-deps-
+      - run:
+        name: Install dependencies
+        command: yarn install --frozen-lockfile
+      - save_cache:
+          key: 
+            - v1-hello-app-yarn-deps-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/app/node_modules        
 workflows:
   version: 2
   build_test_and_deploy:
@@ -25,3 +36,9 @@ workflows:
           filters:
             tags:
               only: latest
+      - bundle_dependencies:
+          requires:
+            - checkout_code
+          filters:
+            tags:
+              only: latest              
