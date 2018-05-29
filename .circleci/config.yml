@@ -11,8 +11,7 @@ jobs:
       - checkout
       - run:
         name: Version command
-        command: 
-          echo "Running checkout"
+        command: echo "Running checkout"
   bundle_dependencies:
     <<: *build_defaults
     steps:
@@ -35,8 +34,8 @@ jobs:
           keys:
             - v1-hello-app-yarn-deps-{{ checksum "yarn.lock" }}
       - run:
-          name: Run Linter
-          command: yarn lint
+        name: Run Linter
+        command: yarn lint
   test:
     <<: *build_defaults
     steps:
@@ -44,8 +43,8 @@ jobs:
           keys:
             - v1-hello-app-yarn-deps-{{ checksum "yarn.lock" }}
       - run:
-          name: Runnimg Tests
-          command: yarn test                           
+        name: Runnimg Tests
+         command: yarn test                           
 workflows:
   version: 2
   build_test_and_deploy:
